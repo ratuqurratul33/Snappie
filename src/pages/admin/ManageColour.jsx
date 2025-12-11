@@ -37,24 +37,6 @@ export default function ManageColour() {
 
       <h1 className="font-pixel text-[28px] mb-8">Manage Colour</h1>
 
-      {/* Tabs */}
-      <div className="flex gap-6 mb-6">
-        <button
-          onClick={() => navigate("/admin/frame")}
-          className="w-[150px] h-[55px] border-[2px] border-black rounded-[14px]
-          font-pixel bg-white hover:bg-snappiePink hover:text-white transition"
-        >
-          Frame
-        </button>
-
-        <button
-          className="w-[150px] h-[55px] border-[2px] border-black rounded-[14px]
-          font-pixel bg-snappiePink text-white shadow-[0_4px_0_#000]"
-        >
-          Colour
-        </button>
-      </div>
-
       {/* ACTION BAR */}
       <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-12 py-6 flex justify-center gap-10 mb-4">
         <button

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import FrameAddForm from "../../components/admin/FrameAddForm";
 import FrameList from "../../components/admin/FrameList";
 
-// helper: File -> dataURL (base64)
 const fileToDataUrl = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -13,36 +12,30 @@ const fileToDataUrl = (file) =>
   });
 
 export default function ManageFrame() {
-  // POPUP
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // FORM STATE
+  // TAB FILTER: all / premium
+  const [activeTab, setActiveTab] = useState("all");
+
   const [namaFrame, setNamaFrame] = useState("");
   const [jenis, setJenis] = useState("gratis");
   const [harga, setHarga] = useState("");
   const [thumb, setThumb] = useState(null);
 
-  // FILE PER STRIP
   const [frame1, setFrame1] = useState(null);
   const [frame3, setFrame3] = useState(null);
   const [frame4, setFrame4] = useState(null);
 
-  // DATA FRAME
   const [frames, setFrames] = useState([]);
 
-  // LOAD DATA DARI LOCALSTORAGE
   useEffect(() => {
     const saved = localStorage.getItem("frames");
-    if (saved) {
-      setFrames(JSON.parse(saved));
-    }
+    if (saved) setFrames(JSON.parse(saved));
   }, []);
 
-  // SIMPAN FRAME BARU
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ubah semua file jadi dataURL (kalau ada)
     const [thumbData, f1Data, f3Data, f4Data] = await Promise.all([
       thumb ? fileToDataUrl(thumb) : Promise.resolve(null),
       frame1 ? fileToDataUrl(frame1) : Promise.resolve(null),
@@ -55,22 +48,14 @@ export default function ManageFrame() {
       namaFrame,
       jenis,
       harga: jenis === "gratis" ? 0 : Number(harga || 0),
-
-      // langsung simpan dataURL
       thumb: thumbData,
-      frameByStrip: {
-        1: f1Data,
-        3: f3Data,
-        4: f4Data,
-      },
+      frameByStrip: { 1: f1Data, 3: f3Data, 4: f4Data },
     };
 
     const updated = [...frames, newFrame];
-
     setFrames(updated);
     localStorage.setItem("frames", JSON.stringify(updated));
 
-    // reset form
     setNamaFrame("");
     setJenis("gratis");
     setHarga("");
@@ -81,24 +66,25 @@ export default function ManageFrame() {
     setShowAddForm(false);
   };
 
-  // DELETE
   const handleDelete = (id) => {
     const updated = frames.filter((f) => f.id !== id);
     setFrames(updated);
     localStorage.setItem("frames", JSON.stringify(updated));
   };
 
+  // FILTER PREMIUM
+  const filteredFrames =
+    activeTab === "premium"
+      ? frames.filter((f) => f.jenis === "premium")
+      : frames;
+
   return (
     <>
-      {/* POPUP FORM ADD FRAME */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="w-[650px] bg-[#FFF3AA] border-[4px] border-black rounded-3xl shadow-[0_8px_0_#000]">
-            {/* HEADER */}
             <div className="bg-snappiePink border-b-[4px] border-black rounded-t-3xl p-4 flex justify-between items-center">
-              <h3 className="font-pixel text-[18px] text-[#FAE446]">
-                Tambah Frame
-              </h3>
+              <h3 className="font-pixel text-[18px] text-[#FAE446]">Tambah Frame</h3>
               <button
                 onClick={() => setShowAddForm(false)}
                 className="text-black font-bold text-[18px] hover:scale-110 transition"
@@ -107,7 +93,6 @@ export default function ManageFrame() {
               </button>
             </div>
 
-            {/* FORM */}
             <div className="p-6">
               <FrameAddForm
                 namaFrame={namaFrame}
@@ -127,22 +112,47 @@ export default function ManageFrame() {
         </div>
       )}
 
-      {/* MAIN CONTENT */}
       <div className="w-full min-h-[calc(100vh-76px)]">
         <h1 className="font-pixel text-[28px] mb-10">Manage Frame</h1>
 
-        {/* ACTION BUTTON */}
-        <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-12 py-6 flex justify-center gap-10">
+        {/* ACTION AREA — Tambah Frame + Tabs */}
+        <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-12 py-6 flex justify-between items-center">
+
           <button
             onClick={() => setShowAddForm(true)}
-            className="w-[340px] h-[70px] font-pixel border-2 border-black rounded-[12px] bg-white hover:bg-snappiePink hover:text-white transition"
+            className="w-[260px] h-[60px] font-pixel border-2 border-black rounded-[12px] bg-white hover:bg-snappiePink hover:text-white transition"
           >
             + Tambah Frame Baru
           </button>
+
+          {/* TAB FILTER */}
+          <div className="flex gap-3">
+            <button
+              className={`px-6 py-3 font-pixel border-2 rounded-[12px] ${
+                activeTab === 'all'
+                  ? 'bg-snappiePink border-black text-white'
+                  : 'bg-white border-black'
+              }`}
+              onClick={() => setActiveTab("all")}
+            >
+              Semua
+            </button>
+
+            <button
+              className={`px-6 py-3 font-pixel border-2 rounded-[12px] ${
+                activeTab === 'premium'
+                  ? 'bg-snappiePink border-black text-white'
+                  : 'bg-white border-black'
+              }`}
+              onClick={() => setActiveTab("premium")}
+            >
+              Premium
+            </button>
+          </div>
         </div>
 
-        {/* FRAME LIST */}
-        <FrameList frames={frames} onDelete={handleDelete} />
+        {/* TABEL FRAME */}
+        <FrameList frames={filteredFrames} onDelete={handleDelete} />
       </div>
     </>
   );
