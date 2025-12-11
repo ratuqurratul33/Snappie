@@ -1,16 +1,51 @@
-# React + Vite
+🔧 Cara Instalasi & Menjalankan Proyek
+### 📌 1️⃣ Clone Repository
+git clone https://github.com/username/admin-snappie-fe.git
+cd admin-snappie-fe
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### 📌 2️⃣ Install Dependencies
+npm install
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Perintah ini akan mengunduh semua library yang dibutuhkan (React, Vite, Tailwind, Router, dsb).
 
-## React Compiler
+### 📌 3️⃣ Jalankan Server Development
+npm run dev
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+Setelah server berjalan, buka:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+http://localhost:5173
+
+### 📌 4️⃣ Build untuk Production
+npm run build
+
+
+Hasil build akan muncul di folder:
+
+/dist
+
+### 📌 5️⃣ Preview Hasil Build (Opsional)
+npm run preview
+
+### 📌 6️⃣ Reset Data LocalStorage (Jika diperlukan)
+
+Halaman Admin Snappie menyimpan data berikut pada browser:
+
+frames
+
+colors
+
+transactions (opsional)
+
+Gunakan ini untuk mereset:
+
+localStorage.removeItem("frames");
+localStorage.removeItem("colors");
+localStorage.removeItem("transactions");
+
+### 📌 7️⃣ Pastikan Node.js & Git Sudah Terinstal
+Tools	Minimal Version
+Node.js	v16+
+NPM	v8+
+Git	Latest
