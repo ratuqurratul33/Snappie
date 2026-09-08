@@ -9,24 +9,40 @@ export default function TakeCamera() {
   const location = useLocation();
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const delay = Number(location.state?.delay) || 3;
   const photosCount = Number(location.state?.photoMode) || 3;
 
+  const [delay, setDelay] = useState(Number(location.state?.delay) || 3);
   const [isStarted, setIsStarted] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [capturedImages, setCapturedImages] = useState([]);
   const [isCounting, setIsCounting] = useState(false);
   const [selectFilterOpen, setSelectFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("normal");
+  const [filterLocked, setFilterLocked] = useState(false);
   const navigate = useNavigate();
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
+  const delayOptions = [3, 5, 10];
+
   // start countdown
   const startCountdown = () => {
     if (capturedImages.length >= photosCount) return;
+
+    // Setelah mulai pertama kali, pilihan efek dikunci & ditutup permanen
+    if (!filterLocked) {
+      setFilterLocked(true);
+      setSelectFilterOpen(false);
+    }
+
     setCountdown(delay);
     setIsCounting(true);
+  };
+
+  // hapus salah satu hasil foto supaya bisa diulang
+  const handleRetake = (index) => {
+    if (isCounting) return;
+    setCapturedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   // filter list
@@ -124,6 +140,23 @@ export default function TakeCamera() {
             )}
           </div>
 
+          {/* TIMER SELECTOR */}
+          <div className="w-full flex justify-center items-center gap-2 pt-2 pb-1">
+            {delayOptions.map((opt) => (
+              <button
+                key={opt}
+                disabled={isCounting}
+                onClick={() => setDelay(opt)}
+                className={`font-press text-[10px] px-4 py-2 rounded-full border-2 border-black transition
+                  ${delay === opt ? "bg-[#F4A9B8] scale-105" : "bg-white hover:bg-[#FFE97F]"}
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                `}
+              >
+                {opt}s
+              </button>
+            ))}
+          </div>
+
           {/* BUTTONS */}
           <div className="font-press text-xs w-full flex justify-center items-center gap-10 pb-6">
 
@@ -144,8 +177,9 @@ export default function TakeCamera() {
             )}
 
             <button
-              onClick={() => setSelectFilterOpen(true)}
-              className="bg-[#F3D7A5] px-10 py-4 rounded-[50px] text-black font-bold border-[2.5px] border-black shadow-lg hover:scale-105 transition"
+              disabled={filterLocked}
+              onClick={() => setSelectFilterOpen((prev) => !prev)}
+              className="bg-[#F3D7A5] px-10 py-4 rounded-[50px] text-black font-bold border-[2.5px] border-black shadow-lg hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               EFFECTS
             </button>
@@ -157,10 +191,21 @@ export default function TakeCamera() {
           {Array.from({ length: photosCount }).map((_, i) => (
             <div
               key={i}
-              className="w-[220px] h-[120px] bg-white border-[2.5px] border-black rounded-2xl shadow-xl overflow-hidden flex items-center justify-center"
+              onClick={() => capturedImages[i] && handleRetake(i)}
+              className={`group relative w-[220px] h-[120px] bg-white border-[2.5px] border-black rounded-2xl shadow-xl overflow-hidden flex items-center justify-center
+                ${capturedImages[i] && !isCounting ? "cursor-pointer" : ""}`}
             >
               {capturedImages[i] ? (
-                <img src={capturedImages[i]} className="w-full h-full object-cover" />
+                <>
+                  <img src={capturedImages[i]} className="w-full h-full object-cover" />
+                  {!isCounting && (
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                      <span className="text-white text-xs font-press text-center px-4">
+                        Klik jika ingin mengulang
+                      </span>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="opacity-30 text-sm font-semibold">YOUR PHOTOS</div>
               )}
@@ -186,15 +231,13 @@ export default function TakeCamera() {
           
         </div>
 
-        {/* FILTER OPTIONS */}
-        {selectFilterOpen && (
+        {/* FILTER OPTIONS — tetap terbuka setelah memilih, supaya bisa ganti-ganti;
+            hanya dikunci/ditutup permanen setelah "mulai" (lihat startCountdown) */}
+        {selectFilterOpen && !filterLocked && (
           <div className="absolute left-1/2 -translate-x-1/2 bottom-[-100px] w-max">
             <FilterOptions
               selected={selectedFilter}
-              onSelect={f => {
-                setSelectedFilter(f);
-                setSelectFilterOpen(false);
-              }}
+              onSelect={setSelectedFilter}
             />
           </div>
         )}

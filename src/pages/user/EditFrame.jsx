@@ -96,6 +96,9 @@ export default function EditFrame() {
     // FRAME GAMBAR
     if (frameData.type === "image") {
       const imgFrame = new Image();
+      // Frame gambar sekarang dimuat dari Supabase Storage (beda origin) —
+      // tanpa ini, canvas jadi "tainted" dan toDataURL() gagal saat download.
+      imgFrame.crossOrigin = "anonymous";
       imgFrame.src = frameData.frameByStrip[stripCount];
 
       await new Promise((resolve) => {

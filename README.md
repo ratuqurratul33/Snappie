@@ -34,6 +34,22 @@ VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-public-key
 ```
 
+## 🌱 Seed Data Awal (Colour & Frame Contoh)
+
+Supaya admin panel tidak kosong setelah setup, ada script seed opsional yang menambahkan beberapa
+colour default + 1 contoh frame:
+
+1. Copy `supabase/.seed.env.example` menjadi `supabase/.seed.env`.
+2. Isi `SUPABASE_URL` (sama seperti `.env`) dan `SUPABASE_SERVICE_ROLE_KEY` (ambil dari
+   **Project Settings > API**, bagian `service_role` — **jangan pernah** taruh key ini di frontend/`.env`
+   biasa, karena bisa bypass semua RLS). File `.seed.env` sudah di-gitignore, aman tidak ke-commit.
+3. Jalankan:
+   ```sh
+   npm run seed
+   ```
+4. Cek di `/admin/colour` dan `/admin/frame` — datanya sudah bisa langsung dipakai atau dihapus/diganti
+   kapan saja lewat admin panel seperti biasa.
+
 ## 📌 Instalasi & Menjalankan Proyek
 
 ```sh

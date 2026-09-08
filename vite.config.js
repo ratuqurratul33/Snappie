@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    // eslint-disable-next-line no-undef -- vite.config.js runs in Node, not the browser
     port: Number(process.env.PORT) || 5173,
   },
 })
