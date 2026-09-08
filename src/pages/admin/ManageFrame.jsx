@@ -2,17 +2,14 @@
 import { useState, useEffect } from "react";
 import FrameAddForm from "../../components/admin/FrameAddForm";
 import FrameList from "../../components/admin/FrameList";
-
-const fileToDataUrl = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+import { supabase } from "../../lib/supabaseClient";
+import { uploadFrameImage } from "../../utils/uploadImage";
 
 export default function ManageFrame() {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // TAB FILTER: all / premium
   const [activeTab, setActiveTab] = useState("all");
@@ -28,34 +25,35 @@ export default function ManageFrame() {
 
   const [frames, setFrames] = useState([]);
 
+  const loadFrames = async () => {
+    setLoading(true);
+    const { data, error: fetchError } = await supabase
+      .from("frames")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (fetchError) {
+      setError("Gagal memuat data frame.");
+    } else {
+      setFrames(
+        data.map((f) => ({
+          id: f.id,
+          namaFrame: f.nama_frame,
+          jenis: f.jenis,
+          harga: f.harga,
+          thumb: f.thumb_url,
+          frameByStrip: { 1: f.frame_1_url, 3: f.frame_3_url, 4: f.frame_4_url },
+        }))
+      );
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const saved = localStorage.getItem("frames");
-    if (saved) setFrames(JSON.parse(saved));
+    loadFrames();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const [thumbData, f1Data, f3Data, f4Data] = await Promise.all([
-      thumb ? fileToDataUrl(thumb) : Promise.resolve(null),
-      frame1 ? fileToDataUrl(frame1) : Promise.resolve(null),
-      frame3 ? fileToDataUrl(frame3) : Promise.resolve(null),
-      frame4 ? fileToDataUrl(frame4) : Promise.resolve(null),
-    ]);
-
-    const newFrame = {
-      id: `FRM-${String(frames.length + 1).padStart(3, "0")}`,
-      namaFrame,
-      jenis,
-      harga: jenis === "gratis" ? 0 : Number(harga || 0),
-      thumb: thumbData,
-      frameByStrip: { 1: f1Data, 3: f3Data, 4: f4Data },
-    };
-
-    const updated = [...frames, newFrame];
-    setFrames(updated);
-    localStorage.setItem("frames", JSON.stringify(updated));
-
+  const resetForm = () => {
     setNamaFrame("");
     setJenis("gratis");
     setHarga("");
@@ -63,13 +61,52 @@ export default function ManageFrame() {
     setFrame1(null);
     setFrame3(null);
     setFrame4(null);
-    setShowAddForm(false);
   };
 
-  const handleDelete = (id) => {
-    const updated = frames.filter((f) => f.id !== id);
-    setFrames(updated);
-    localStorage.setItem("frames", JSON.stringify(updated));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!namaFrame.trim()) return;
+
+    setSaving(true);
+    setError("");
+
+    try {
+      const [thumbUrl, f1Url, f3Url, f4Url] = await Promise.all([
+        uploadFrameImage(thumb, "thumbs"),
+        uploadFrameImage(frame1, "strip-1"),
+        uploadFrameImage(frame3, "strip-3"),
+        uploadFrameImage(frame4, "strip-4"),
+      ]);
+
+      const { error: insertError } = await supabase.from("frames").insert({
+        nama_frame: namaFrame,
+        jenis,
+        harga: jenis === "gratis" ? 0 : Number(harga || 0),
+        thumb_url: thumbUrl,
+        frame_1_url: f1Url,
+        frame_3_url: f3Url,
+        frame_4_url: f4Url,
+      });
+
+      if (insertError) throw insertError;
+
+      await loadFrames();
+      resetForm();
+      setShowAddForm(false);
+    } catch (err) {
+      setError(err.message || "Gagal menyimpan frame.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const { error: deleteError } = await supabase.from("frames").delete().eq("id", id);
+    if (deleteError) {
+      setError("Gagal menghapus frame.");
+      return;
+    }
+    setFrames((prev) => prev.filter((f) => f.id !== id));
   };
 
   // FILTER PREMIUM
@@ -106,6 +143,7 @@ export default function ManageFrame() {
                 setFrame3={setFrame3}
                 setFrame4={setFrame4}
                 handleSubmit={handleSubmit}
+                saving={saving}
               />
             </div>
           </div>
@@ -114,6 +152,12 @@ export default function ManageFrame() {
 
       <div className="w-full min-h-[calc(100vh-76px)]">
         <h1 className="font-pixel text-[28px] mb-10">Manage Frame</h1>
+
+        {error && (
+          <div className="mb-4 px-4 py-3 rounded-[10px] border-2 border-black bg-red-200 font-semantic text-[13px]">
+            {error}
+          </div>
+        )}
 
         {/* ACTION AREA — Tambah Frame + Tabs */}
         <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-12 py-6 flex justify-between items-center">
@@ -152,7 +196,11 @@ export default function ManageFrame() {
         </div>
 
         {/* TABEL FRAME */}
-        <FrameList frames={filteredFrames} onDelete={handleDelete} />
+        {loading ? (
+          <p className="font-semantic text-[13px] mt-8">Memuat frame...</p>
+        ) : (
+          <FrameList frames={filteredFrames} onDelete={handleDelete} />
+        )}
       </div>
     </>
   );

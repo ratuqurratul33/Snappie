@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TransactionList from "../../components/admin/TransactionList";
 import { MdSearch, MdFilterAlt, MdDateRange } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
+import { supabase } from "../../lib/supabaseClient";
 
 // Statistic Cards
 import TotalRevenueCard from "../../components/admin/transactions/TotalRevenueCard";
@@ -12,32 +13,46 @@ import TotalVisitorsCard from "../../components/admin/transactions/TotalVisitors
 import DatePicker from "react-datepicker";
 
 export default function TransactionPage() {
-  // Dummy STATS
-  const [stats] = useState({
-    revenue: 500000,
-    success: 500,
-    visitors: 150000,
-  });
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Dummy TRANSACTION DATA
-  const dummyData = [
-    {
-      id: "SNPP-001095",
-      frame: "Classic Chic",
-      filter: "Monokrom",
-      date: "March 12, 2023",
-      status: "Premium",
-      harga: "Rp 1.000",
-    },
-    {
-      id: "SNPP-002201",
-      frame: "Retro Pop",
-      filter: "Sepia",
-      date: "April 2, 2023",
-      status: "Gratis",
-      harga: "Rp 0",
-    },
-  ];
+  const loadTransactions = async () => {
+    setLoading(true);
+    const { data, error: fetchError } = await supabase
+      .from("transactions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (fetchError) {
+      setError("Gagal memuat data transaksi.");
+    } else {
+      setTransactions(data);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  const handleDelete = async (id) => {
+    const { error: deleteError } = await supabase.from("transactions").delete().eq("id", id);
+    if (deleteError) {
+      setError("Gagal menghapus transaksi.");
+      return;
+    }
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // STATS (dihitung dari data transaksi asli)
+  const stats = {
+    revenue: transactions
+      .filter((t) => t.status === "Premium")
+      .reduce((sum, t) => sum + (t.harga || 0), 0),
+    success: transactions.length,
+    visitors: transactions.length,
+  };
 
   // Date filter
   const [selectedDate, setSelectedDate] = useState(null);
@@ -48,14 +63,30 @@ export default function TransactionPage() {
   const [filterStatus, setFilterStatus] = useState("");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
+  // TAMPILAN untuk TransactionList
+  const tableData = transactions.map((t) => ({
+    id: t.kode,
+    _id: t.id,
+    frame: t.frame_name,
+    filter: t.filter,
+    date: new Date(t.created_at).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
+    rawDate: t.created_at,
+    status: t.status,
+    harga: t.status === "Gratis" ? "Rp 0" : `Rp ${Number(t.harga).toLocaleString("id-ID")}`,
+  }));
+
   // FILTERING LOGIC
-  const filteredData = dummyData.filter((item) => {
+  const filteredData = tableData.filter((item) => {
     const matchSearch =
       item.frame.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.id.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchDate = selectedDate
-      ? new Date(item.date).toDateString() === selectedDate.toDateString()
+      ? new Date(item.rawDate).toDateString() === selectedDate.toDateString()
       : true;
 
     const matchStatus = filterStatus ? item.status === filterStatus : true;
@@ -69,6 +100,12 @@ export default function TransactionPage() {
 
         {/* TITLE */}
         <h1 className="font-pixel text-[28px] mb-8">Transaksi</h1>
+
+        {error && (
+          <div className="mb-6 px-4 py-3 rounded-[10px] border-2 border-black bg-red-200 font-semantic text-[13px]">
+            {error}
+          </div>
+        )}
 
         {/* STAT CARDS */}
         <div className="w-full flex justify-between gap-6 mt-8 mb-10">
@@ -156,7 +193,11 @@ export default function TransactionPage() {
         </div>
 
         {/* TABLE */}
-        <TransactionList data={filteredData} />
+        {loading ? (
+          <p className="font-semantic text-[13px]">Memuat transaksi...</p>
+        ) : (
+          <TransactionList data={filteredData} onDelete={handleDelete} />
+        )}
       </div>
     </div>
   );

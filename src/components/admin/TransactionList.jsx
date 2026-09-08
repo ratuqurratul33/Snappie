@@ -1,6 +1,6 @@
 import { MdEdit, MdDelete } from "react-icons/md";
 
-export default function TransactionList({ data = [] }) {
+export default function TransactionList({ data = [], onDelete }) {
   return (
     <div
       className="
@@ -61,12 +61,12 @@ export default function TransactionList({ data = [] }) {
                 <MdEdit
                   size={18}
                   className="cursor-pointer hover:text-black"
-                  onClick={() => console.log("Edit:", item.id)}
+                  onClick={() => alert("Feature edit soon")}
                 />
                 <MdDelete
                   size={18}
                   className="cursor-pointer hover:text-red-500"
-                  onClick={() => console.log("Hapus:", item.id)}
+                  onClick={() => onDelete?.(item._id ?? item.id)}
                 />
               </td>
             </tr>

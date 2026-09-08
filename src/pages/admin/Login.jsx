@@ -1,13 +1,34 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../../lib/supabaseClient";
 import tvLeft from "../../assets/tv/left.png";
 import tvRight from "../../assets/tv/right.png";
 import bgLogin from "../../assets/tv/bg-LoginAdmin.png"; // ✅ FIX PATH
 
 export default function Login() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (authError) {
+      setError("Email atau password salah.");
+      return;
+    }
+
     navigate("/admin/frame");
   };
 
@@ -90,8 +111,10 @@ export default function Login() {
               "
             >
               <input
-                type="text"
-                placeholder="NAMA AKUN"
+                type="email"
+                placeholder="EMAIL"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="
                   w-[435px] h-[68px]
                   rounded-full border-[3px] border-black
@@ -104,6 +127,8 @@ export default function Login() {
               <input
                 type="password"
                 placeholder="PASSWORD"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="
                   w-[435px] h-[68px]
                   rounded-full border-[3px] border-black
@@ -113,8 +138,13 @@ export default function Login() {
                 required
               />
 
+              {error && (
+                <p className="font-pixel text-[12px] text-red-600 -mt-4">{error}</p>
+              )}
+
               <button
                 type="submit"
+                disabled={loading}
                 className="
                   w-[394px] h-[62px]
                   rounded-full border-[3px] border-black
@@ -122,9 +152,10 @@ export default function Login() {
                   bg-[#A7DA70]
                   shadow-[0_5px_0_#000]
                   hover:brightness-95 active:translate-y-[2px]
+                  disabled:opacity-60
                 "
               >
-                MASUK
+                {loading ? "MEMPROSES..." : "MASUK"}
               </button>
 
             </div>

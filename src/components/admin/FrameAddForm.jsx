@@ -6,7 +6,8 @@ export default function FrameAddForm({
   setFrame1,
   setFrame3,
   setFrame4,
-  handleSubmit
+  handleSubmit,
+  saving = false,
 }) {
   return (
     <form
@@ -127,6 +128,7 @@ export default function FrameAddForm({
       {/* Submit */}
       <button
         type="submit"
+        disabled={saving}
         className="
           w-full h-[50px]
           bg-snappieGreen
@@ -135,9 +137,10 @@ export default function FrameAddForm({
           font-pixel text-[14px]
           hover:brightness-95 hover:scale-[0.98]
           transition-all
+          disabled:opacity-60
         "
       >
-        Simpan Frame
+        {saving ? "Menyimpan..." : "Simpan Frame"}
       </button>
     </form>
   );

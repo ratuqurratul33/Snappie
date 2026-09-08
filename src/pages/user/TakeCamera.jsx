@@ -171,7 +171,9 @@ export default function TakeCamera() {
           <button
             disabled={capturedImages.length < photosCount}
               onClick={() =>
-                navigate("../edit-frame", { state: { photos: capturedImages } })
+                navigate("../edit-frame", {
+                  state: { photos: capturedImages, filter: selectedFilter },
+                })
               }
               className={`font-press mt-4 px-20 py-3 rounded-[50px] font-bold border-[2.5px] border-black shadow-lg transition
                 ${capturedImages.length < photosCount 

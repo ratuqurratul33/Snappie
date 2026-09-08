@@ -3,12 +3,15 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import FramePicker from "../../components/user/FramePicker";
 import FramePreview from "../../components/user/FramePreview";
-import { ALL_FRAMES } from "../../data/frameLists";
+import { useFrames } from "../../hooks/useFrames";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function EditFrame() {
   const location = useLocation();
   const photos = location.state?.photos || [];
+  const selectedFilter = location.state?.filter || "normal";
   const [selectedFrame, setSelectedFrame] = useState(null);
+  const { allFrames, loading: framesLoading } = useFrames();
 
   const stripCount = Math.min(photos.length, 4);
 
@@ -58,8 +61,8 @@ export default function EditFrame() {
       });
     }
 
-    // Ambil frame data dari ALL_FRAMES
-    const frameData = ALL_FRAMES.find(f => f.id === selectedFrame.id);
+    // Ambil frame data dari daftar frame yang sudah dimuat dari Supabase
+    const frameData = allFrames.find(f => f.id === selectedFrame.id);
     if (!frameData) return alert("Frame tidak ditemukan!");
 
     // FRAME WARNA
@@ -108,6 +111,17 @@ export default function EditFrame() {
     link.href = canvas.toDataURL("image/png");
     link.download = `photobooth-${frameData.id}.png`;
     link.click();
+
+    // Catat transaksi ke Supabase (dipakai untuk statistik di admin)
+    const isPremium = frameData.type === "image" && !frameData.isFree;
+    await supabase.from("transactions").insert({
+      kode: `SNPP-${Date.now().toString().slice(-8)}`,
+      frame_id: frameData.type === "image" ? frameData.id : null,
+      frame_name: frameData.type === "image" ? "Frame" : "Colour Frame",
+      filter: selectedFilter,
+      status: isPremium ? "Premium" : "Gratis",
+      harga: isPremium ? frameData.harga || 0 : 0,
+    });
   };
 
   // UI LAYOUT
@@ -131,16 +145,20 @@ export default function EditFrame() {
 
       {/* PICKER + BUTTON */}
       <div className="self-start flex flex-col items-center gap-4">
-        <FramePicker
-          frames={ALL_FRAMES}
-          selectedFrame={selectedFrame}
-          onPickFrame={setSelectedFrame}
-        />
+        {framesLoading ? (
+          <p className="font-press text-sm">Memuat frame...</p>
+        ) : (
+          <FramePicker
+            frames={allFrames}
+            selectedFrame={selectedFrame}
+            onPickFrame={setSelectedFrame}
+          />
+        )}
 
         <div className="flex gap-8">
           <button
             onClick={handleDownload}
-            disabled={photos.length === 0}
+            disabled={photos.length === 0 || framesLoading}
             className="font-press mt-4 px-10 py-2 rounded-[15px] font-bold border-[2.5px] border-black shadow-lg transition bg-[#FFE97F] hover:scale-105 disabled:bg-[#BBDA97]"
           >
             Download

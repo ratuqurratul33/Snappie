@@ -1,51 +1,86 @@
-🔧 Cara Instalasi & Menjalankan Proyek
-### 📌 1️⃣ Clone Repository
-git clone https://github.com/username/admin-snappie-fe.git
-cd admin-snappie-fe
+# 📸 Snappie
 
-### 📌 2️⃣ Install Dependencies
+Photobooth web app dengan tampilan **User** (ambil foto, pilih frame/colour, download) dan tampilan **Admin**
+(kelola frame, kelola colour, lihat transaksi). Backend & database menggunakan **Supabase** (Postgres +
+Auth + Storage), frontend deploy ke **Vercel**.
+
+---
+
+## 🏗️ Arsitektur
+
+- **Frontend**: React + Vite + Tailwind (folder ini), deploy sebagai static site ke Vercel.
+- **Backend**: [Supabase](https://supabase.com) — tidak perlu server terpisah. Supabase menyediakan:
+  - **Database** (Postgres) untuk tabel `frames`, `colours`, `transactions`.
+  - **Auth** untuk login admin (email + password).
+  - **Storage** (bucket `frames`) untuk menyimpan gambar thumbnail & frame strip.
+  - Semua akses diatur lewat **Row Level Security (RLS)**: data frame/colour bisa dibaca publik (dipakai
+    halaman user), tapi hanya admin yang sudah login yang bisa menambah/menghapus.
+
+## 🔧 Setup Supabase
+
+1. Buat project baru di [supabase.com](https://supabase.com).
+2. Buka **SQL Editor**, jalankan seluruh isi file [`supabase/schema.sql`](./supabase/schema.sql).
+   File ini membuat tabel, RLS policy, dan bucket storage `frames`.
+3. Buat akun admin: **Authentication > Users > Add user** (isi email + password). Akun ini dipakai untuk
+   login di `/admin/login`.
+4. Ambil kredensial API: **Project Settings > API** → copy `Project URL` dan `anon public` key.
+
+## 🔑 Environment Variables
+
+Salin `.env.example` menjadi `.env` lalu isi dengan kredensial dari langkah di atas:
+
+```sh
+VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key
+```
+
+## 📌 Instalasi & Menjalankan Proyek
+
+```sh
 npm install
-
-
-Perintah ini akan mengunduh semua library yang dibutuhkan (React, Vite, Tailwind, Router, dsb).
-
-### 📌 3️⃣ Jalankan Server Development
 npm run dev
+```
 
+Buka http://localhost:5173
 
-Setelah server berjalan, buka:
+Build untuk production:
 
-http://localhost:5173
-
-### 📌 4️⃣ Build untuk Production
+```sh
 npm run build
-
-
-Hasil build akan muncul di folder:
-
-/dist
-
-### 📌 5️⃣ Preview Hasil Build (Opsional)
 npm run preview
+```
 
-### 📌 6️⃣ Reset Data LocalStorage (Jika diperlukan)
+## 🚀 Deploy ke Vercel
 
-Halaman Admin Snappie menyimpan data berikut pada browser:
+1. Push repo ini ke GitHub.
+2. Import project di [vercel.com](https://vercel.com) (framework preset: **Vite**).
+3. Tambahkan environment variables `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY` di
+   **Project Settings > Environment Variables**.
+4. Deploy. File `vercel.json` sudah mengatur SPA rewrite supaya route seperti `/admin/frame` tidak 404
+   saat direfresh.
 
-frames
+## 🚀 Fitur
 
-colors
+### Tampilan User (`/user`)
+- Ambil foto lewat webcam (dengan filter & delay), atau upload foto sendiri.
+- Pilih frame (gambar) atau colour frame.
+- Download hasil sebagai PNG. Setiap download otomatis tercatat sebagai transaksi di database.
 
-transactions (opsional)
+### Tampilan Admin (`/admin`)
+- **Login** — autentikasi asli via Supabase Auth.
+- **Manage Frame** — tambah frame (upload thumbnail + gambar frame strip 1/3/4 ke Supabase Storage),
+  lihat daftar, filter premium, hapus.
+- **Manage Colour** — tambah colour (hex/color picker), lihat daftar, hapus.
+- **Transaksi** — statistik pendapatan/transaksi sukses/kunjungan dihitung dari data transaksi asli,
+  dengan filter search, status, dan tanggal.
 
-Gunakan ini untuk mereset:
+## 🏗️ Tech Stack
 
-localStorage.removeItem("frames");
-localStorage.removeItem("colors");
-localStorage.removeItem("transactions");
-
-### 📌 7️⃣ Pastikan Node.js & Git Sudah Terinstal
-Tools	Minimal Version
-Node.js	v16+
-NPM	v8+
-Git	Latest
+| Teknologi | Fungsi |
+|----------|--------|
+| React.js + Vite | Frontend |
+| Tailwind CSS | Styling |
+| Supabase | Database, Auth, Storage (backend) |
+| React Router DOM | Routing |
+| React Icons / React Datepicker | UI |
+| Vercel | Hosting |

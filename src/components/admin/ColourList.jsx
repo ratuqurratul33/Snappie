@@ -1,4 +1,4 @@
-export default function ColourList({ colours }) {
+export default function ColourList({ colours, onDelete }) {
   return (
     <div
       className="
@@ -13,7 +13,7 @@ export default function ColourList({ colours }) {
       <div
         className="
           bg-snappiePink border-b-[2px] border-black
-          grid grid-cols-3 text-center
+          grid grid-cols-4 text-center
           font-semantic text-[13px]
           py-3 px-6
         "
@@ -21,6 +21,7 @@ export default function ColourList({ colours }) {
         <span>Preview</span>
         <span>Nama Colour</span>
         <span>Hex Code</span>
+        <span>Aksi</span>
       </div>
 
       {/* Rows */}
@@ -28,7 +29,7 @@ export default function ColourList({ colours }) {
         <div
           key={c.id}
           className="
-            grid grid-cols-3 items-center justify-center text-center gap-3
+            grid grid-cols-4 items-center justify-center text-center gap-3
             font-semantic text-[12px]
             py-4 px-6
             border-b border-black/20
@@ -46,6 +47,14 @@ export default function ColourList({ colours }) {
 
           <span>{c.name}</span>
           <span>{c.hex}</span>
+
+          <button
+            type="button"
+            onClick={() => onDelete?.(c.id)}
+            className="hover:scale-110 transition text-[14px]"
+          >
+            🗑️
+          </button>
         </div>
       ))}
     </div>
