@@ -52,9 +52,9 @@ export default function ManageColour() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-76px)] px-10 pt-10">
+    <div className="w-full min-h-[calc(100vh-76px)] px-3 sm:px-6 lg:px-10 pt-4 sm:pt-10">
 
-      <h1 className="font-pixel text-[28px] mb-8">Manage Colour</h1>
+      <h1 className="font-pixel text-lg sm:text-2xl lg:text-[28px] mb-4 sm:mb-8">Manage Colour</h1>
 
       {error && (
         <div className="mb-4 px-4 py-3 rounded-[10px] border-2 border-black bg-red-200 font-semantic text-[13px]">
@@ -63,10 +63,10 @@ export default function ManageColour() {
       )}
 
       {/* ACTION BAR */}
-      <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-12 py-6 flex justify-center gap-10 mb-4">
+      <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-4 sm:px-8 lg:px-12 py-4 sm:py-6 flex justify-center gap-10 mb-4">
         <button
           onClick={() => setShowAddForm(true)}
-          className="w-[300px] h-[65px] font-pixel border-[2px] border-black
+          className="w-full sm:w-[300px] h-[52px] sm:h-[65px] text-[12px] sm:text-sm font-pixel border-[2px] border-black
           rounded-[10px] bg-white hover:bg-snappiePink hover:text-white
           shadow-[0_4px_0_#000] transition"
         >

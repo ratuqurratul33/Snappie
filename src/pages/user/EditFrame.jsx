@@ -1,5 +1,5 @@
 // EditFrame.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import FramePicker from "../../components/user/FramePicker";
 import FramePreview from "../../components/user/FramePreview";
@@ -24,7 +24,29 @@ export default function EditFrame() {
     1: { width: 12.5 * CM, height: 8.5 * CM, x: 0.8 * CM, yStart: 1 * CM, gap: 0, frameWidth: 14 * CM, frameHeight: 10.5 * CM }
   };
 
-  const SLOT = CONFIG[stripCount];
+  // Fallback ke config 1-strip kalau belum ada foto sama sekali (stripCount 0),
+  // supaya halaman ini tidak crash kalau dibuka tanpa lewat alur kamera.
+  const SLOT = CONFIG[stripCount] || CONFIG[1];
+
+  // Preview di-scale sesuai lebar layar supaya tidak overflow di HP
+  // (dimensi asli dalam SLOT dihitung dari cm, jadi bisa ratusan px).
+  const [previewScale, setPreviewScale] = useState(1);
+
+  useEffect(() => {
+    function computeScale() {
+      const w = window.innerWidth;
+      let targetWidth;
+      if (w < 480) targetWidth = 190;
+      else if (w < 640) targetWidth = 230;
+      else if (w < 768) targetWidth = 280;
+      else if (w < 1024) targetWidth = 320;
+      else targetWidth = 380;
+      setPreviewScale(Math.min(1, targetWidth / SLOT.frameWidth));
+    }
+    computeScale();
+    window.addEventListener("resize", computeScale);
+    return () => window.removeEventListener("resize", computeScale);
+  }, [SLOT.frameWidth]);
 
   // HANDLE DOWNLOAD FILE PNG
   const handleDownload = async () => {
@@ -130,7 +152,7 @@ export default function EditFrame() {
   // UI LAYOUT
   return (
     <div
-      className="min-h-screen bg-[#FFF3D8] flex items-start justify-center p-20 gap-16"
+      className="min-h-screen bg-[#FFF3D8] flex flex-col lg:flex-row items-center lg:items-start justify-center p-4 sm:p-8 lg:p-20 gap-6 lg:gap-16"
       style={{
         backgroundImage: "url(/webImage/Camera.png)",
         backgroundSize: "cover",
@@ -138,16 +160,21 @@ export default function EditFrame() {
       }}
     >
       {/* PREVIEW */}
-      <div className="scale-75 origin-top flex flex-col items-center gap-4">
-        <FramePreview
-          photos={photos}
-          selectedFrame={selectedFrame}
-          stripCount={stripCount}
-        />
+      <div
+        className="flex flex-col items-center gap-4"
+        style={{ width: SLOT.frameWidth * previewScale, height: SLOT.frameHeight * previewScale }}
+      >
+        <div style={{ width: SLOT.frameWidth, height: SLOT.frameHeight, transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
+          <FramePreview
+            photos={photos}
+            selectedFrame={selectedFrame}
+            stripCount={stripCount}
+          />
+        </div>
       </div>
 
       {/* PICKER + BUTTON */}
-      <div className="self-start flex flex-col items-center gap-4">
+      <div className="w-full max-w-[500px] lg:w-auto lg:self-start flex flex-col items-center gap-4">
         {framesLoading ? (
           <p className="font-press text-sm">Memuat frame...</p>
         ) : (
@@ -158,18 +185,18 @@ export default function EditFrame() {
           />
         )}
 
-        <div className="flex gap-8">
+        <div className="flex gap-4 sm:gap-8">
           <button
             onClick={handleDownload}
             disabled={photos.length === 0 || framesLoading}
-            className="font-press mt-4 px-10 py-2 rounded-[15px] font-bold border-[2.5px] border-black shadow-lg transition bg-[#FFE97F] hover:scale-105 disabled:bg-[#BBDA97]"
+            className="font-press text-xs sm:text-sm mt-2 sm:mt-4 px-6 sm:px-10 py-2 rounded-[15px] font-bold border-2 sm:border-[2.5px] border-black shadow-lg transition bg-[#FFE97F] hover:scale-105 disabled:bg-[#BBDA97]"
           >
             Download
           </button>
 
           <button
             onClick={() => window.history.back()}
-            className="font-press mt-4 px-10 py-2 rounded-[15px] font-bold border-[2.5px] border-black shadow-lg transition bg-[#FF9999] hover:scale-105"
+            className="font-press text-xs sm:text-sm mt-2 sm:mt-4 px-6 sm:px-10 py-2 rounded-[15px] font-bold border-2 sm:border-[2.5px] border-black shadow-lg transition bg-[#FF9999] hover:scale-105"
           >
             Back
           </button>

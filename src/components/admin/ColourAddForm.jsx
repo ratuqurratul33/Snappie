@@ -14,8 +14,8 @@ export default function ColourAddForm({ onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]">
-      <div className="w-[420px] bg-white rounded-[14px] border-[4px] border-black shadow-[0_6px_0_#000] overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] px-4">
+      <div className="w-full max-w-[420px] bg-white rounded-[14px] border-[3px] sm:border-[4px] border-black shadow-[0_6px_0_#000] overflow-hidden">
 
         {/* HEADER */}
         <div className="bg-snappiePink text-[#FFE97F] font-roboto text-[20px] px-6 py-3 flex justify-between items-center">

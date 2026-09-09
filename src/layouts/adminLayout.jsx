@@ -30,13 +30,13 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="flex w-full min-h-screen bg-white overflow-hidden">
+    <div className="flex flex-col lg:flex-row w-full min-h-screen bg-white overflow-x-hidden">
 
       {/* SIDEBAR */}
       <SidebarAdmin />
 
       {/* AREA KANAN */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-white min-w-0">
         <TopbarAdmin />
 
         {/* PAGE CONTENT */}
@@ -44,7 +44,7 @@ export default function AdminLayout() {
           className="
             flex-1
             w-full max-w-[1500px] mx-auto
-            px-10 py-10
+            px-3 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10
           "
         >
           <Outlet />

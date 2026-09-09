@@ -118,10 +118,10 @@ export default function ManageFrame() {
   return (
     <>
       {showAddForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="w-[650px] bg-[#FFF3AA] border-[4px] border-black rounded-3xl shadow-[0_8px_0_#000]">
-            <div className="bg-snappiePink border-b-[4px] border-black rounded-t-3xl p-4 flex justify-between items-center">
-              <h3 className="font-pixel text-[18px] text-[#FAE446]">Tambah Frame</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+          <div className="w-full max-w-[650px] max-h-[90vh] overflow-y-auto bg-[#FFF3AA] border-[3px] sm:border-[4px] border-black rounded-2xl sm:rounded-3xl shadow-[0_8px_0_#000]">
+            <div className="bg-snappiePink border-b-[3px] sm:border-b-[4px] border-black rounded-t-2xl sm:rounded-t-3xl p-3 sm:p-4 flex justify-between items-center sticky top-0">
+              <h3 className="font-pixel text-[14px] sm:text-[18px] text-[#FAE446]">Tambah Frame</h3>
               <button
                 onClick={() => setShowAddForm(false)}
                 className="text-black font-bold text-[18px] hover:scale-110 transition"
@@ -130,7 +130,7 @@ export default function ManageFrame() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-3 sm:p-6">
               <FrameAddForm
                 namaFrame={namaFrame}
                 setNamaFrame={setNamaFrame}
@@ -151,7 +151,7 @@ export default function ManageFrame() {
       )}
 
       <div className="w-full min-h-[calc(100vh-76px)]">
-        <h1 className="font-pixel text-[28px] mb-10">Manage Frame</h1>
+        <h1 className="font-pixel text-lg sm:text-2xl lg:text-[28px] mb-4 sm:mb-6 lg:mb-10">Manage Frame</h1>
 
         {error && (
           <div className="mb-4 px-4 py-3 rounded-[10px] border-2 border-black bg-red-200 font-semantic text-[13px]">
@@ -160,19 +160,19 @@ export default function ManageFrame() {
         )}
 
         {/* ACTION AREA — Tambah Frame + Tabs */}
-        <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-12 py-6 flex justify-between items-center">
+        <div className="w-full bg-white border-2 border-black rounded-[12px] shadow-[0_4px_0_#000] px-4 sm:px-8 lg:px-12 py-4 sm:py-6 flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
 
           <button
             onClick={() => setShowAddForm(true)}
-            className="w-[260px] h-[60px] font-pixel border-2 border-black rounded-[12px] bg-white hover:bg-snappiePink hover:text-white transition"
+            className="w-full sm:w-[220px] lg:w-[260px] h-[48px] sm:h-[56px] lg:h-[60px] font-pixel text-[11px] sm:text-sm border-2 border-black rounded-[12px] bg-white hover:bg-snappiePink hover:text-white transition"
           >
             + Tambah Frame Baru
           </button>
 
           {/* TAB FILTER */}
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <button
-              className={`px-6 py-3 font-pixel border-2 rounded-[12px] ${
+              className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 text-[11px] sm:text-sm font-pixel border-2 rounded-[12px] ${
                 activeTab === 'all'
                   ? 'bg-snappiePink border-black text-white'
                   : 'bg-white border-black'
@@ -183,7 +183,7 @@ export default function ManageFrame() {
             </button>
 
             <button
-              className={`px-6 py-3 font-pixel border-2 rounded-[12px] ${
+              className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 text-[11px] sm:text-sm font-pixel border-2 rounded-[12px] ${
                 activeTab === 'premium'
                   ? 'bg-snappiePink border-black text-white'
                   : 'bg-white border-black'

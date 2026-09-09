@@ -6,8 +6,8 @@ export default function UploadPhotoPopup({ isOpen, onClose, onUpload }) {
   if (!isOpen) return null; // tidak render jika popup ditutup
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white w-[400px] rounded-[28px] shadow-2xl border-black overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+      <div className="bg-white w-full max-w-[400px] rounded-[28px] shadow-2xl border-black overflow-hidden">
         
         <div className="bg-[#F4A9B8] w-full px-6 py-3 border-b-2 border-black relative flex items-center justify-center">
         {/* CLOSE BUTTON */}

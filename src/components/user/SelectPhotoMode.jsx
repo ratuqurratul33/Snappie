@@ -19,7 +19,7 @@ export default function SelectPhotoMode({ onChange }) {
     <div className="relative inline-block">
       <button
         onClick={() => setOpen(!open)}
-        className={`font-press px-6 py-3 bg-[#F3D7A5] hover:bg-amber-300 rounded-full border-4 border-black font-bold text-xl text-black shadow-md transition-all ${open ? 'scale-105' : 'hover:scale-105'}`}
+        className={`font-press px-3 sm:px-6 py-2 sm:py-3 bg-[#F3D7A5] hover:bg-amber-300 rounded-full border-2 sm:border-4 border-black font-bold text-xs sm:text-xl text-black shadow-md transition-all ${open ? 'scale-105' : 'hover:scale-105'}`}
       >
         {getModeLabel(mode)}
       </button>

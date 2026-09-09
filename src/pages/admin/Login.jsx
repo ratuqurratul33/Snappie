@@ -34,10 +34,10 @@ export default function Login() {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center bg-cover bg-center"
+      className="min-h-screen w-full flex items-center justify-center bg-cover bg-center overflow-hidden px-2"
       style={{ backgroundImage: `url(${bgLogin})` }} // ✅ FIXED Background
     >
-      <div className="scale-[0.75] md:scale-[0.9] lg:scale-[1] transition-all duration-300 flex justify-center items-center">
+      <div className="scale-[0.24] sm:scale-[0.45] md:scale-[0.65] lg:scale-[0.85] xl:scale-[1] transition-all duration-300 flex justify-center items-center">
         
         {/* BACKGROUND HITAM FRAME */}
         <div

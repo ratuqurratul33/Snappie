@@ -19,7 +19,7 @@ export default function SelectDelay({ onChange }) {
       {/* BUTTON UTAMA */}
       <button
         onClick={() => setOpen(!open)}
-        className={`font-press px-8 py-3 rounded-full border-4 border-black font-bold text-xl transition-all ${
+        className={`font-press px-4 sm:px-8 py-2 sm:py-3 rounded-full border-2 sm:border-4 border-black font-bold text-xs sm:text-xl transition-all ${
           open
             ? "bg-[#C35B61] text-black shadow-lg scale-105"
             : "bg-[#C35B61] text-black hover:bg-[#C35B68] hover:scale-105"

@@ -95,11 +95,11 @@ export default function TransactionPage() {
   });
 
   return (
-    <div className="w-full min-h-[calc(100vh-76px)] py-8 px-10">
+    <div className="w-full min-h-[calc(100vh-76px)] py-4 sm:py-8 px-3 sm:px-6 lg:px-10">
       <div className="max-w-[1500px] mx-auto">
 
         {/* TITLE */}
-        <h1 className="font-pixel text-[28px] mb-8">Transaksi</h1>
+        <h1 className="font-pixel text-lg sm:text-2xl lg:text-[28px] mb-4 sm:mb-8">Transaksi</h1>
 
         {error && (
           <div className="mb-6 px-4 py-3 rounded-[10px] border-2 border-black bg-red-200 font-semantic text-[13px]">
@@ -108,29 +108,29 @@ export default function TransactionPage() {
         )}
 
         {/* STAT CARDS */}
-        <div className="w-full flex justify-between gap-6 mt-8 mb-10">
+        <div className="w-full flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 mt-4 sm:mt-8 mb-6 sm:mb-10">
           <TotalRevenueCard value={stats.revenue} />
           <TotalSuccessTransactionCard value={stats.success} />
           <TotalVisitorsCard value={stats.visitors} />
         </div>
 
         {/* FILTER BAR */}
-        <div className="w-full flex items-center gap-4 bg-snappiePink border-[2px] border-black rounded-[25px] px-6 py-4 mb-8 shadow-md relative">
+        <div className="w-full flex flex-wrap items-center gap-3 sm:gap-4 bg-snappiePink border-[2px] border-black rounded-[20px] sm:rounded-[25px] px-4 sm:px-6 py-3 sm:py-4 mb-6 sm:mb-8 shadow-md relative">
 
           {/* SEARCH */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-[160px]">
             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
             <input
               type="text"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-[45px] border-[2px] border-black rounded-[12px] pl-10 pr-4 bg-white font-pixel text-[11px]"
+              className="w-full h-[42px] sm:h-[45px] border-[2px] border-black rounded-[12px] pl-10 pr-4 bg-white font-pixel text-[11px]"
             />
           </div>
 
           {/* FRAME FILTER (dummy) */}
-          <button className="flex items-center justify-center gap-2 w-[110px] h-[45px] bg-white border-[2px] border-black rounded-[12px] font-pixel text-[11px] hover:bg-[#FFE97F] transition-all">
+          <button className="flex items-center justify-center gap-2 w-[100px] sm:w-[110px] h-[42px] sm:h-[45px] bg-white border-[2px] border-black rounded-[12px] font-pixel text-[10px] sm:text-[11px] hover:bg-[#FFE97F] transition-all">
             <MdFilterAlt size={16} /> Frame <IoIosArrowDown size={14} />
           </button>
 
@@ -138,7 +138,7 @@ export default function TransactionPage() {
           <div className="relative">
             <button
               onClick={() => setShowDatePicker(!showDatePicker)}
-              className="flex items-center justify-center gap-2 w-[110px] h-[45px] bg-white border-[2px] border-black rounded-[12px] font-pixel text-[11px] hover:bg-[#FFE97F] transition-all"
+              className="flex items-center justify-center gap-2 w-[100px] sm:w-[110px] h-[42px] sm:h-[45px] bg-white border-[2px] border-black rounded-[12px] font-pixel text-[10px] sm:text-[11px] hover:bg-[#FFE97F] transition-all"
             >
               <MdDateRange size={18} /> Date <IoIosArrowDown size={14} />
             </button>
@@ -161,7 +161,7 @@ export default function TransactionPage() {
           <div className="relative">
             <button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="flex items-center justify-center gap-2 w-[110px] h-[45px] bg-white border-[2px] border-black rounded-[12px] font-pixel text-[11px] hover:bg-[#FFE97F] transition-all"
+              className="flex items-center justify-center gap-2 w-[100px] sm:w-[110px] h-[42px] sm:h-[45px] bg-white border-[2px] border-black rounded-[12px] font-pixel text-[10px] sm:text-[11px] hover:bg-[#FFE97F] transition-all"
             >
               <MdFilterAlt size={16} /> Status <IoIosArrowDown size={14} />
             </button>

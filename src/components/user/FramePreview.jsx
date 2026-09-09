@@ -7,7 +7,7 @@ export default function FramePreview({ photos, selectedFrame, stripCount }) {
     1: { width: 12.5 * CM, height: 8.5 * CM, x: 0.8 * CM, yStart: 1 * CM, gap: 0, frameWidth: 14 * CM, frameHeight: 10.5 * CM },
   };
 
-  const SLOT = CONFIG[stripCount];
+  const SLOT = CONFIG[stripCount] || CONFIG[1];
 
   return (
     <div

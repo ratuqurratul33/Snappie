@@ -95,25 +95,25 @@ export default function TakeCamera() {
 
   return (
     <div
-      className="min-h-screen h-fit pb-40 w-full flex justify-center items-start bg-cover bg-center bg-no-repeat py-10 pt-20"
+      className="min-h-screen h-fit pb-16 sm:pb-40 w-full flex justify-center items-start bg-cover bg-center bg-no-repeat py-4 sm:py-10 pt-6 sm:pt-20 px-3"
       style={{ backgroundImage: "url(/webImage/Camera.png)" }}
     >
-      <div className="flex gap-10 relative">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 relative w-full max-w-[1100px]">
 
         {/* CAMERA FRAME */}
-        <div className="relative w-[800px] bg-white rounded-[28px] shadow-2xl border-[2.5px] border-black overflow-hidden">
+        <div className="relative w-full max-w-[500px] md:max-w-[800px] bg-white rounded-[20px] sm:rounded-[28px] shadow-2xl border-[2px] sm:border-[2.5px] border-black overflow-hidden">
 
           {/* TOP BAR */}
-          <div className="bg-[#F4A9B8] w-full px-6 py-3 border-b-2 border-black relative flex items-center justify-center">
-            <div className="absolute left-6 flex gap-3">
-              <div className="w-4 h-4 rounded-full bg-[#E30C10] shadow-lg shadow-black/40"></div>
-              <div className="w-4 h-4 rounded-full bg-[#3298E0] shadow-lg shadow-black/40"></div>
-              <div className="w-4 h-4 rounded-full bg-[#28BB45] shadow-lg shadow-black/40"></div>
+          <div className="bg-[#F4A9B8] w-full px-4 sm:px-6 py-2 sm:py-3 border-b-2 border-black relative flex items-center justify-center">
+            <div className="absolute left-4 sm:left-6 flex gap-2 sm:gap-3">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[#E30C10] shadow-lg shadow-black/40"></div>
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[#3298E0] shadow-lg shadow-black/40"></div>
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[#28BB45] shadow-lg shadow-black/40"></div>
             </div>
 
             <h3
-              className="font-press text-xl font-bold text-[#FFE97F] tracking-wider"
-              style={{ 
+              className="font-press text-sm sm:text-lg md:text-xl font-bold text-[#FFE97F] tracking-wider"
+              style={{
                 WebkitTextStroke: "0.5px black",
                 textShadow: "1px 1px 3px #000" }}
             >
@@ -122,7 +122,7 @@ export default function TakeCamera() {
           </div>
 
           {/* CAMERA AREA */}
-          <div className="bg-[#FFE97F] m-6 h-[420px] rounded-2xl border-[2.5px] border-black flex items-center justify-center relative overflow-hidden">
+          <div className="bg-[#FFE97F] m-3 sm:m-6 h-[220px] sm:h-[320px] md:h-[420px] rounded-2xl border-[2px] sm:border-[2.5px] border-black flex items-center justify-center relative overflow-hidden">
             <Webcam
               ref={webcamRef}
               screenshotFormat="image/jpeg"
@@ -133,7 +133,7 @@ export default function TakeCamera() {
 
             {isCounting && countdown > 0 && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <span className="text-white text-7xl font-bold drop-shadow-xl">
+                <span className="text-white text-4xl sm:text-6xl md:text-7xl font-bold drop-shadow-xl">
                   {countdown}
                 </span>
               </div>
@@ -147,7 +147,7 @@ export default function TakeCamera() {
                 key={opt}
                 disabled={isCounting}
                 onClick={() => setDelay(opt)}
-                className={`font-press text-[10px] px-4 py-2 rounded-full border-2 border-black transition
+                className={`font-press text-[9px] sm:text-[10px] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border-2 border-black transition
                   ${delay === opt ? "bg-[#F4A9B8] scale-105" : "bg-white hover:bg-[#FFE97F]"}
                   disabled:opacity-50 disabled:cursor-not-allowed
                 `}
@@ -158,10 +158,10 @@ export default function TakeCamera() {
           </div>
 
           {/* BUTTONS */}
-          <div className="font-press text-xs w-full flex justify-center items-center gap-10 pb-6">
+          <div className="font-press text-[9px] sm:text-xs w-full flex flex-wrap justify-center items-center gap-3 sm:gap-6 md:gap-10 px-3 pb-4 sm:pb-6">
 
             <button
-              className="bg-[#BBDA97] px-8 py-4 rounded-[30px] text-black font-bold border-[2.5px] border-black shadow-lg hover:scale-105 transition"
+              className="bg-[#BBDA97] px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-[20px] sm:rounded-[30px] text-black font-bold border-2 sm:border-[2.5px] border-black shadow-lg hover:scale-105 transition"
               onClick={() => setIsUploadOpen(true)}
             >
               UPLOAD PHOTO
@@ -170,16 +170,16 @@ export default function TakeCamera() {
             {!isCounting && capturedImages.length < photosCount && (
               <button
                 onClick={startCountdown}
-                className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition"
+                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition"
               >
-                <img src="/webImage/icon-camera.png" className="w-7" />
+                <img src="/webImage/icon-camera.png" className="w-5 sm:w-6 md:w-7" />
               </button>
             )}
 
             <button
               disabled={filterLocked}
               onClick={() => setSelectFilterOpen((prev) => !prev)}
-              className="bg-[#F3D7A5] px-10 py-4 rounded-[50px] text-black font-bold border-[2.5px] border-black shadow-lg hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="bg-[#F3D7A5] px-4 sm:px-6 md:px-10 py-2 sm:py-3 md:py-4 rounded-[20px] sm:rounded-[50px] text-black font-bold border-2 sm:border-[2.5px] border-black shadow-lg hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               EFFECTS
             </button>
@@ -187,20 +187,20 @@ export default function TakeCamera() {
         </div>
 
         {/* PREVIEW PANEL */}
-        <div className="flex flex-col gap-5 items-center">
+        <div className="flex flex-row md:flex-col flex-wrap justify-center gap-3 sm:gap-5 items-center w-full max-w-[500px] md:w-auto md:max-w-none">
           {Array.from({ length: photosCount }).map((_, i) => (
             <div
               key={i}
               onClick={() => capturedImages[i] && handleRetake(i)}
-              className={`group relative w-[220px] h-[120px] bg-white border-[2.5px] border-black rounded-2xl shadow-xl overflow-hidden flex items-center justify-center
+              className={`group relative w-[140px] sm:w-[180px] md:w-[220px] h-[80px] sm:h-[100px] md:h-[120px] bg-white border-2 sm:border-[2.5px] border-black rounded-xl sm:rounded-2xl shadow-xl overflow-hidden flex items-center justify-center
                 ${capturedImages[i] && !isCounting ? "cursor-pointer" : ""}`}
             >
               {capturedImages[i] ? (
                 <>
                   <img src={capturedImages[i]} className="w-full h-full object-cover" />
                   {!isCounting && (
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                      <span className="text-white text-xs font-press text-center px-4">
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 active:opacity-100 transition flex items-center justify-center">
+                      <span className="text-white text-[9px] sm:text-xs font-press text-center px-2 sm:px-4">
                         Klik jika ingin mengulang
                       </span>
                     </div>
@@ -220,21 +220,21 @@ export default function TakeCamera() {
                   state: { photos: capturedImages, filter: selectedFilter },
                 })
               }
-              className={`font-press mt-4 px-20 py-3 rounded-[50px] font-bold border-[2.5px] border-black shadow-lg transition
-                ${capturedImages.length < photosCount 
+              className={`w-full md:w-auto font-press text-xs sm:text-sm mt-2 md:mt-4 px-8 sm:px-14 md:px-20 py-2 sm:py-3 rounded-[30px] sm:rounded-[50px] font-bold border-2 sm:border-[2.5px] border-black shadow-lg transition
+                ${capturedImages.length < photosCount
                   ? "bg-[#BBDA97] text-black cursor-not-allowed"
                   : "bg-[#FFE97F] text-black hover:scale-105"}
               `}
             >
               NEXT
           </button>
-          
+
         </div>
 
         {/* FILTER OPTIONS — tetap terbuka setelah memilih, supaya bisa ganti-ganti;
             hanya dikunci/ditutup permanen setelah "mulai" (lihat startCountdown) */}
         {selectFilterOpen && !filterLocked && (
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-[-100px] w-max">
+          <div className="w-full flex justify-center mt-2 md:mt-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:bottom-[-100px] md:w-max">
             <FilterOptions
               selected={selectedFilter}
               onSelect={setSelectedFilter}
