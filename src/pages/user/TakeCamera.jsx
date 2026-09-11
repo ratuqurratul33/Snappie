@@ -1,9 +1,20 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import Webcam from "react-webcam";
 import UploadPhotoPopup from "../../components/user/UploadPhotoPopup.jsx";
 import FilterOptions from "../../components/user/FilterOptions";
 import { useNavigate } from "react-router-dom";
+
+const FILTER_STYLES = {
+  normal: "none",
+  mono: "grayscale(100%) contrast(1)",
+  sepia: "sepia(70%) contrast(1) brightness(1.1)",
+  soft: "brightness(1.1) blur(1px) contrast(0.9) saturate(1.4)",
+  pop: "saturate(2) contrast(1) brightness(1.1)",
+  retro: "contrast(1.1) sepia(0.7) saturate(0.8) hue-rotate(-10deg)",
+};
+
+const PAUSE_BETWEEN_SHOTS = 1200; // jeda antar foto saat strip 3/4 lanjut otomatis
 
 export default function TakeCamera() {
   const location = useLocation();
@@ -12,7 +23,6 @@ export default function TakeCamera() {
   const photosCount = Number(location.state?.photoMode) || 3;
 
   const [delay, setDelay] = useState(Number(location.state?.delay) || 3);
-  const [isStarted, setIsStarted] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [capturedImages, setCapturedImages] = useState([]);
   const [isCounting, setIsCounting] = useState(false);
@@ -26,9 +36,46 @@ export default function TakeCamera() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
   const delayOptions = [3, 5, 10];
-  const PAUSE_BETWEEN_SHOTS = 1200; // jeda antar foto saat strip 3/4 lanjut otomatis
 
-  // start countdown — dipicu klik tombol shutter (cuma sekali per strip)
+  // true selama satu strip (3/4 foto) sedang berjalan otomatis; dibaca lewat
+  // ref (bukan cuma state) supaya efek di bawah selalu lihat nilai TERBARU
+  // tanpa tergantung urutan render/efek lain -- ini yang bikin "lanjut
+  // otomatis"-nya solid walau di device yang lambat.
+  const sequenceActiveRef = useRef(false);
+  const nextShotTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (nextShotTimeoutRef.current) clearTimeout(nextShotTimeoutRef.current);
+    };
+  }, []);
+
+  // Ambil satu frame dari video sekarang jadi data URL (dengan filter CSS
+  // yang lagi aktif ikut ter-bake ke gambarnya).
+  const captureFrame = useCallback(() => {
+    const video = webcamRef.current?.video;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !video.videoWidth) return null;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.filter = FILTER_STYLES[selectedFilter] || "none";
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    return canvas.toDataURL("image/jpeg");
+  }, [selectedFilter]);
+
+  // Mulai satu hitung mundur + capture. Dipakai baik untuk foto pertama
+  // (klik shutter) maupun tiap foto berikutnya dalam strip yang sama.
+  const fireShot = useCallback(() => {
+    setCountdown(delay);
+    setIsCounting(true);
+  }, [delay]);
+
+  // start countdown — dipicu klik tombol shutter (cuma sekali per strip;
+  // sisa foto di strip 3/4 lanjut sendiri lewat efek capture di bawah)
   const startCountdown = () => {
     if (capturedImages.length >= photosCount) return;
 
@@ -38,82 +85,52 @@ export default function TakeCamera() {
       setSelectFilterOpen(false);
     }
 
+    sequenceActiveRef.current = true;
     setAutoCapturing(true);
-    setCountdown(delay);
-    setIsCounting(true);
+    fireShot();
   };
 
-  // Setelah foto pertama, sisa foto di strip (3/4) lanjut sendiri dengan
-  // jeda singkat -- tidak perlu klik ulang icon kamera tiap mau foto.
-  useEffect(() => {
-    if (!autoCapturing || isCounting) return;
-
-    if (capturedImages.length >= photosCount) {
-      setAutoCapturing(false);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCountdown(delay);
-      setIsCounting(true);
-    }, PAUSE_BETWEEN_SHOTS);
-
-    return () => clearTimeout(timer);
-  }, [autoCapturing, isCounting, capturedImages.length, photosCount, delay]);
-
-  // hapus salah satu hasil foto supaya bisa diulang
+  // hapus salah satu hasil foto supaya bisa diulang (retake selalu manual,
+  // tidak memicu lanjutan otomatis -- lihat pengecekan sequenceActiveRef
+  // di bawah, cuma jalan kalau user klik shutter lagi)
   const handleRetake = (index) => {
     if (isCounting) return;
     setCapturedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // filter list
-  const filterStyles = {
-    normal: "none",
-    mono: "grayscale(100%) contrast(1)",
-    sepia: "sepia(70%) contrast(1) brightness(1.1)",
-    soft: "brightness(1.1) blur(1px) contrast(0.9) saturate(1.4)",
-    pop: "saturate(2) contrast(1) brightness(1.1)",
-    retro: "contrast(1.1) sepia(0.7) saturate(0.8) hue-rotate(-10deg)",
-  };
-
-  // countdown logic + capture with filter
+  // countdown -> capture -> kalau masih dalam sequence & strip belum penuh,
+  // langsung jadwalkan foto berikutnya dari sini juga (satu efek yang sama,
+  // jadi tidak ada celah waktu untuk gagal lanjut ke foto berikutnya).
   useEffect(() => {
     if (!isCounting) return;
 
     if (countdown <= 0) {
-      const video = webcamRef.current.video;
-      const canvas = canvasRef.current;
+      const filteredImage = captureFrame();
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      const ctx = canvas.getContext("2d");
-
-      // apply CSS filter
-      ctx.filter = filterStyles[selectedFilter] || "none";
-
-      // draw frame to canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // extract image
-      const filteredImage = canvas.toDataURL("image/jpeg");
-
-      setCapturedImages(prev => {
-        if (prev.length >= photosCount) return prev;
+      setCapturedImages((prev) => {
+        if (prev.length >= photosCount || !filteredImage) return prev;
         return [...prev, filteredImage];
       });
-
       setIsCounting(false);
+
+      const nextLength = capturedImages.length + (filteredImage ? 1 : 0);
+
+      if (sequenceActiveRef.current && nextLength < photosCount) {
+        nextShotTimeoutRef.current = setTimeout(fireShot, PAUSE_BETWEEN_SHOTS);
+      } else {
+        sequenceActiveRef.current = false;
+        setAutoCapturing(false);
+      }
+
       return;
     }
 
     const timer = setTimeout(() => {
-      setCountdown(prev => prev - 1);
+      setCountdown((prev) => prev - 1);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [countdown, isCounting, photosCount, selectedFilter]);
+  }, [countdown, isCounting, photosCount, captureFrame, fireShot, capturedImages.length]);
 
   return (
     <div
@@ -150,7 +167,7 @@ export default function TakeCamera() {
               screenshotFormat="image/jpeg"
               className="w-full h-full object-cover rounded-xl"
               videoConstraints={{ facingMode: "user" }}
-              style={{ filter: filterStyles[selectedFilter] }}
+              style={{ filter: FILTER_STYLES[selectedFilter] }}
               onUserMedia={() => setCameraError(false)}
               onUserMediaError={() => setCameraError(true)}
             />
