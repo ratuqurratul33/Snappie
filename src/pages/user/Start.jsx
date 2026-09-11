@@ -5,6 +5,7 @@ import HeaderImage from "../../components/user/HeaderImage";
 import SelectDelay from "../../components/user/SelectDelay";
 import SelectPhotoMode from "../../components/user/SelectPhotoMode";
 import StartButton from "../../components/user/StartButton";
+import Footer from "../../components/Footer";
 
 export default function Start() {
   const navigate = useNavigate();
@@ -105,6 +106,8 @@ export default function Start() {
           <SelectPhotoMode onChange={setPhotoMode} />
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

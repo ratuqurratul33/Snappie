@@ -5,6 +5,7 @@ import FramePicker from "../../components/user/FramePicker";
 import FramePreview from "../../components/user/FramePreview";
 import { useFrames } from "../../hooks/useFrames";
 import { supabase } from "../../lib/supabaseClient";
+import { getSlot } from "../../utils/frameLayout";
 
 export default function EditFrame() {
   const location = useLocation();
@@ -15,18 +16,9 @@ export default function EditFrame() {
 
   const stripCount = Math.min(photos.length, 4);
 
-  // Konversi CM → pixel
-  const CM = 37.79527559;
-  const CONFIG = {
-    4: { width: 8.83 * CM, height: 4.79 * CM, x: 0.84 * CM, yStart: 2 * CM, gap: 0.7 * CM, frameWidth: 10.5 * CM, frameHeight: 29.7 * CM },
-    3: { width: 8.83 * CM, height: 5 * CM, x: 0.85 * CM, yStart: 1.2 * CM, gap: 1.4 * CM, frameWidth: 10.5 * CM, frameHeight: 22.5 * CM },
-    2: { width: 8.83 * CM, height: 9.5 * CM, x: 0.84 * CM, yStart: 4 * CM, gap: 1.5 * CM, frameWidth: 10.5 * CM, frameHeight: 29.7 * CM },
-    1: { width: 12.5 * CM, height: 8.5 * CM, x: 0.8 * CM, yStart: 1 * CM, gap: 0, frameWidth: 14 * CM, frameHeight: 10.5 * CM }
-  };
-
-  // Fallback ke config 1-strip kalau belum ada foto sama sekali (stripCount 0),
-  // supaya halaman ini tidak crash kalau dibuka tanpa lewat alur kamera.
-  const SLOT = CONFIG[stripCount] || CONFIG[1];
+  // Geometri strip (posisi & ukuran tiap foto) dari satu sumber yang sama
+  // dengan FramePreview, supaya hasil download selalu identik dengan preview.
+  const SLOT = getSlot(stripCount);
 
   // Preview di-scale sesuai lebar layar supaya tidak overflow di HP
   // (dimensi asli dalam SLOT dihitung dari cm, jadi bisa ratusan px).
@@ -52,19 +44,35 @@ export default function EditFrame() {
   const handleDownload = async () => {
     if (!selectedFrame) return alert("Pilih frame dulu!");
 
+    // Ambil frame data dari daftar frame yang sudah dimuat dari Supabase.
+    // Dicari DULU (sebelum menggambar) karena warnanya dipakai sebagai
+    // background canvas.
+    const frameData = allFrames.find(f => f.id === selectedFrame.id);
+    if (!frameData) return alert("Frame tidak ditemukan!");
+
     const canvas = document.createElement("canvas");
     canvas.width = SLOT.frameWidth;
     canvas.height = SLOT.frameHeight;
     const ctx = canvas.getContext("2d");
 
-    // background putih
-    ctx.fillStyle = "#fff";
+    // Background = warna frame (untuk frame warna) atau putih (untuk frame
+    // gambar). Sebelumnya background selalu putih lalu warna digambar
+    // sebagai border tebal di atasnya — itu yang menyebabkan garis putih
+    // tipis di tepi karena border tidak pernah pas menutupi sampai ke
+    // pinggir foto. Dengan background = warna penuh dari awal, celah di
+    // sekitar & antar foto otomatis terisi warna yang benar, sama seperti
+    // di live preview (FramePreview.jsx).
+    ctx.fillStyle = frameData.type === "color" ? frameData.color : "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Gambar foto-foto
+    // Gambar foto-foto, masing-masing di-clip ke kotak slotnya sendiri
+    // supaya hasil crop "cover" tidak meluber ke slot foto sebelah atau
+    // ke luar frame (penyebab strip 3/4 foto jadi tidak rapi).
     for (let i = 0; i < stripCount; i++) {
       const img = new Image();
       img.src = photos[i];
+
+      const slotY = SLOT.yStart + i * (SLOT.height + SLOT.gap);
 
       await new Promise((resolve) => {
         img.onload = () => {
@@ -73,28 +81,21 @@ export default function EditFrame() {
           const h = img.height * scale;
 
           const x = SLOT.x + (SLOT.width - w) / 2;
-          const y =
-            SLOT.yStart + i * (SLOT.height + SLOT.gap) +
-            (SLOT.height - h) / 2;
+          const y = slotY + (SLOT.height - h) / 2;
 
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(SLOT.x, slotY, SLOT.width, SLOT.height);
+          ctx.clip();
           ctx.drawImage(img, x, y, w, h);
+          ctx.restore();
           resolve();
         };
       });
     }
 
-    // Ambil frame data dari daftar frame yang sudah dimuat dari Supabase
-    const frameData = allFrames.find(f => f.id === selectedFrame.id);
-    if (!frameData) return alert("Frame tidak ditemukan!");
-
-    // FRAME WARNA
+    // FRAME WARNA — tinggal watermark, border sudah jadi background di atas
     if (frameData.type === "color") {
-      // Border full menutupi frame
-      ctx.strokeStyle = frameData.color;
-      ctx.lineWidth = 60; // lebih tebal agar full-cover
-      ctx.strokeRect(0, 0, SLOT.frameWidth, SLOT.frameHeight);
-
-      // === WATERMARK SNAPPIE GOLD PIXEL ===
       ctx.save();
 
       ctx.font = "26px 'Press Start 2P', system-ui";
@@ -114,7 +115,7 @@ export default function EditFrame() {
       ctx.restore();
     }
 
-    
+
     // FRAME GAMBAR
     if (frameData.type === "image") {
       const imgFrame = new Image();
@@ -131,7 +132,8 @@ export default function EditFrame() {
       });
     }
 
-    // Download file
+    // Download file — selalu PNG (lossless, dan mendukung transparansi
+    // kalau suatu saat frame gambar punya area transparan).
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");
     link.download = `photobooth-${frameData.id}.png`;
