@@ -19,13 +19,16 @@ export default function TakeCamera() {
   const [selectFilterOpen, setSelectFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("normal");
   const [filterLocked, setFilterLocked] = useState(false);
+  const [autoCapturing, setAutoCapturing] = useState(false);
+  const [cameraError, setCameraError] = useState(false);
   const navigate = useNavigate();
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
   const delayOptions = [3, 5, 10];
+  const PAUSE_BETWEEN_SHOTS = 1200; // jeda antar foto saat strip 3/4 lanjut otomatis
 
-  // start countdown
+  // start countdown — dipicu klik tombol shutter (cuma sekali per strip)
   const startCountdown = () => {
     if (capturedImages.length >= photosCount) return;
 
@@ -35,9 +38,28 @@ export default function TakeCamera() {
       setSelectFilterOpen(false);
     }
 
+    setAutoCapturing(true);
     setCountdown(delay);
     setIsCounting(true);
   };
+
+  // Setelah foto pertama, sisa foto di strip (3/4) lanjut sendiri dengan
+  // jeda singkat -- tidak perlu klik ulang icon kamera tiap mau foto.
+  useEffect(() => {
+    if (!autoCapturing || isCounting) return;
+
+    if (capturedImages.length >= photosCount) {
+      setAutoCapturing(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown(delay);
+      setIsCounting(true);
+    }, PAUSE_BETWEEN_SHOTS);
+
+    return () => clearTimeout(timer);
+  }, [autoCapturing, isCounting, capturedImages.length, photosCount, delay]);
 
   // hapus salah satu hasil foto supaya bisa diulang
   const handleRetake = (index) => {
@@ -129,6 +151,8 @@ export default function TakeCamera() {
               className="w-full h-full object-cover rounded-xl"
               videoConstraints={{ facingMode: "user" }}
               style={{ filter: filterStyles[selectedFilter] }}
+              onUserMedia={() => setCameraError(false)}
+              onUserMediaError={() => setCameraError(true)}
             />
 
             {isCounting && countdown > 0 && (
@@ -136,6 +160,17 @@ export default function TakeCamera() {
                 <span className="text-white text-4xl sm:text-6xl md:text-7xl font-bold drop-shadow-xl">
                   {countdown}
                 </span>
+              </div>
+            )}
+
+            {cameraError && (
+              <div className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center px-6 gap-2">
+                <p className="font-press text-white text-[10px] sm:text-xs">
+                  Tidak bisa mengakses kamera
+                </p>
+                <p className="font-press text-white/70 text-[8px] sm:text-[10px] leading-relaxed">
+                  Izinkan akses kamera lewat pengaturan browser, lalu muat ulang halaman ini.
+                </p>
               </div>
             )}
           </div>
@@ -167,13 +202,19 @@ export default function TakeCamera() {
               UPLOAD PHOTO
             </button>
 
-            {!isCounting && capturedImages.length < photosCount && (
+            {!isCounting && !autoCapturing && capturedImages.length < photosCount && (
               <button
                 onClick={startCountdown}
                 className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition"
               >
                 <img src="/webImage/icon-camera.png" className="w-5 sm:w-6 md:w-7" />
               </button>
+            )}
+
+            {autoCapturing && !isCounting && capturedImages.length < photosCount && (
+              <p className="font-press text-[9px] sm:text-[10px] opacity-70">
+                Bersiap untuk foto berikutnya...
+              </p>
             )}
 
             <button
