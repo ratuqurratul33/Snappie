@@ -63,6 +63,13 @@ export default function TakeCamera() {
 
     const ctx = canvas.getContext("2d");
     ctx.filter = FILTER_STYLES[selectedFilter] || "none";
+
+    // Kamera depan biasanya kasih feed yang sudah "kecermin" (searah cermin
+    // beneran), jadi hasil fotonya kebalik dari kenyataan (tulisan jadi
+    // terbalik, dll). Balik lagi di sini supaya hasil unduhan sesuai aslinya
+    // -- preview live di layar sengaja dibiarkan seperti kaca (tidak diubah).
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     return canvas.toDataURL("image/jpeg");
