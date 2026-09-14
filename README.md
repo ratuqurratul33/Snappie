@@ -42,8 +42,17 @@ This project was built to practice and demonstrate:
 
 ## 🖼️ Preview
 
-- **Live demo:** [snappie-delta.vercel.app](https://snappie-delta.vercel.app)
-- Screenshots coming soon.
+**Live demo:** [snappie-delta.vercel.app](https://snappie-delta.vercel.app)
+
+| Start | Camera | Edit Frame | Admin Login |
+|---|---|---|---|
+| ![Start page](<docs/screenshots/Screenshot 2026-09-15 014724.png>) | ![Camera page](<docs/screenshots/Screenshot 2026-09-15 014757.png>) | ![Edit frame page](<docs/screenshots/Screenshot 2026-09-15 015156.png>) | ![Admin login](<docs/screenshots/Screenshot 2026-09-15 015449.png>) |
+
+| Manage Frame | Add Frame/Colour popup | Manage Colour | Transactions |
+|---|---|---|---|
+| ![Manage frame](<docs/screenshots/Screenshot 2026-09-15 015228.png>) | ![Add popup](<docs/screenshots/Screenshot 2026-09-15 015248.png>) | ![Manage colour](<docs/screenshots/Screenshot 2026-09-15 015237.png>) | ![Transactions](<docs/screenshots/Screenshot 2026-09-15 015303.png>) |
+
+> 📌 Just drop your 8 screenshot files (unrenamed, straight from your Screenshots folder) into `docs/screenshots/` — the filenames above already match. If any picture landed in the wrong slot, just swap its row/column in this table before pushing.
 
 ## 🚀 How to Build
 
