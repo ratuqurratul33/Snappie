@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import FramePicker from "../../components/user/FramePicker";
 import FramePreview from "../../components/user/FramePreview";
+import CopyrightFooter from "../../components/CopyrightFooter";
 import { useFrames } from "../../hooks/useFrames";
 import { supabase } from "../../lib/supabaseClient";
 import { getSlot } from "../../utils/frameLayout";
@@ -154,56 +155,60 @@ export default function EditFrame() {
   // UI LAYOUT
   return (
     <div
-      className="min-h-screen bg-[#FFF3D8] flex flex-col lg:flex-row items-center lg:items-start justify-center p-4 sm:p-8 lg:p-20 gap-6 lg:gap-16"
+      className="min-h-screen bg-[#FFF3D8] flex flex-col"
       style={{
         backgroundImage: "url(/webImage/Camera.png)",
         backgroundSize: "cover",
         backgroundPosition: "center"
       }}
     >
-      {/* PREVIEW */}
-      <div
-        className="flex flex-col items-center gap-4"
-        style={{ width: SLOT.frameWidth * previewScale, height: SLOT.frameHeight * previewScale }}
-      >
-        <div style={{ width: SLOT.frameWidth, height: SLOT.frameHeight, transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
-          <FramePreview
-            photos={photos}
-            selectedFrame={selectedFrame}
-            stripCount={stripCount}
-          />
+      <div className="flex-1 flex flex-col lg:flex-row items-center lg:items-start justify-center p-4 sm:p-8 lg:p-20 gap-6 lg:gap-16">
+        {/* PREVIEW */}
+        <div
+          className="flex flex-col items-center gap-4"
+          style={{ width: SLOT.frameWidth * previewScale, height: SLOT.frameHeight * previewScale }}
+        >
+          <div style={{ width: SLOT.frameWidth, height: SLOT.frameHeight, transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
+            <FramePreview
+              photos={photos}
+              selectedFrame={selectedFrame}
+              stripCount={stripCount}
+            />
+          </div>
+        </div>
+
+        {/* PICKER + BUTTON */}
+        <div className="w-full max-w-[500px] lg:w-auto lg:self-start flex flex-col items-center gap-4">
+          {framesLoading ? (
+            <p className="font-press text-sm">Memuat frame...</p>
+          ) : (
+            <FramePicker
+              frames={allFrames}
+              selectedFrame={selectedFrame}
+              onPickFrame={setSelectedFrame}
+            />
+          )}
+
+          <div className="flex gap-4 sm:gap-8">
+            <button
+              onClick={handleDownload}
+              disabled={photos.length === 0 || framesLoading}
+              className="font-press text-xs sm:text-sm mt-2 sm:mt-4 px-6 sm:px-10 py-2 rounded-[15px] font-bold border-2 sm:border-[2.5px] border-black shadow-lg transition bg-[#FFE97F] hover:scale-105 disabled:bg-[#BBDA97]"
+            >
+              Download
+            </button>
+
+            <button
+              onClick={() => window.history.back()}
+              className="font-press text-xs sm:text-sm mt-2 sm:mt-4 px-6 sm:px-10 py-2 rounded-[15px] font-bold border-2 sm:border-[2.5px] border-black shadow-lg transition bg-[#FF9999] hover:scale-105"
+            >
+              Back
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* PICKER + BUTTON */}
-      <div className="w-full max-w-[500px] lg:w-auto lg:self-start flex flex-col items-center gap-4">
-        {framesLoading ? (
-          <p className="font-press text-sm">Memuat frame...</p>
-        ) : (
-          <FramePicker
-            frames={allFrames}
-            selectedFrame={selectedFrame}
-            onPickFrame={setSelectedFrame}
-          />
-        )}
-
-        <div className="flex gap-4 sm:gap-8">
-          <button
-            onClick={handleDownload}
-            disabled={photos.length === 0 || framesLoading}
-            className="font-press text-xs sm:text-sm mt-2 sm:mt-4 px-6 sm:px-10 py-2 rounded-[15px] font-bold border-2 sm:border-[2.5px] border-black shadow-lg transition bg-[#FFE97F] hover:scale-105 disabled:bg-[#BBDA97]"
-          >
-            Download
-          </button>
-
-          <button
-            onClick={() => window.history.back()}
-            className="font-press text-xs sm:text-sm mt-2 sm:mt-4 px-6 sm:px-10 py-2 rounded-[15px] font-bold border-2 sm:border-[2.5px] border-black shadow-lg transition bg-[#FF9999] hover:scale-105"
-          >
-            Back
-          </button>
-        </div>
-      </div>
+      <CopyrightFooter />
     </div>
   );
 }

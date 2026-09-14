@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import SidebarAdmin from "../components/admin/SidebarAdmin";
 import TopbarAdmin from "../components/admin/TopbarAdmin";
+import CopyrightFooter from "../components/CopyrightFooter";
 import { supabase } from "../lib/supabaseClient";
 
 export default function AdminLayout() {
@@ -49,6 +50,8 @@ export default function AdminLayout() {
         >
           <Outlet />
         </main>
+
+        <CopyrightFooter />
       </div>
 
     </div>

@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Webcam from "react-webcam";
 import UploadPhotoPopup from "../../components/user/UploadPhotoPopup.jsx";
 import FilterOptions from "../../components/user/FilterOptions";
+import CopyrightFooter from "../../components/CopyrightFooter";
 import { useNavigate } from "react-router-dom";
 
 const FILTER_STYLES = {
@@ -134,9 +135,10 @@ export default function TakeCamera() {
 
   return (
     <div
-      className="min-h-screen h-fit pb-16 sm:pb-40 w-full flex justify-center items-start bg-cover bg-center bg-no-repeat py-4 sm:py-10 pt-6 sm:pt-20 px-3"
+      className="min-h-screen h-fit w-full flex flex-col items-center bg-cover bg-center bg-no-repeat py-4 sm:py-10 pt-6 sm:pt-20 px-3"
       style={{ backgroundImage: "url(/webImage/Camera.png)" }}
     >
+      <div className="w-full flex justify-center pb-16 sm:pb-40">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 relative w-full max-w-[1100px]">
 
         {/* CAMERA FRAME */}
@@ -312,6 +314,9 @@ export default function TakeCamera() {
           }}
         />
       </div>
+      </div>
+
+      <CopyrightFooter />
 
       {/* HIDDEN CANVAS FOR FILTERED CAPTURE */}
       <canvas ref={canvasRef} className="hidden"></canvas>
