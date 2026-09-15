@@ -6,13 +6,13 @@ A full-stack photobooth web app — take strip photos with a webcam, pick a colo
 
 ## ✨ Features
 
-- 🤳 **Webcam photobooth** — 1/3/4-photo strips, adjustable countdown timer (3s/5s/10s), live filters (mono, sepia, soft, pop, retro), and one-click auto-capture (no re-clicking the shutter between shots).
-- 🖼️ **Frame picker** — choose a plain color border or an admin-uploaded sticker frame, shown in separate, clearly labeled sections.
-- 📥 **Instant PNG download** — the final strip is rendered client-side on a `<canvas>`, matching the live preview pixel-for-pixel.
-- 🔐 **Real admin authentication** — email/password login via Supabase Auth, protected routes.
-- 🎛️ **Admin dashboard** — full CRUD for frames (with image upload to Supabase Storage) and colors, plus a transactions view with live stats (revenue, successful downloads, visits) and search/status/date filters.
-- 📱 **Responsive by design** — usable from a small phone screen up to desktop, including the admin panel.
-- 🌱 **One-command database seeding** — populate a fresh Supabase project with starter colors and a sample frame.
+-  **Webcam photobooth** — 1/3/4-photo strips, adjustable countdown timer (3s/5s/10s), live filters (mono, sepia, soft, pop, retro), and one-click auto-capture (no re-clicking the shutter between shots).
+-  **Frame picker** — choose a plain color border or an admin-uploaded sticker frame, shown in separate, clearly labeled sections.
+-  **Instant PNG download** — the final strip is rendered client-side on a `<canvas>`, matching the live preview pixel-for-pixel.
+-  **Real admin authentication** — email/password login via Supabase Auth, protected routes.
+-  **Admin dashboard** — full CRUD for frames (with image upload to Supabase Storage) and colors, plus a transactions view with live stats (revenue, successful downloads, visits) and search/status/date filters.
+-  **Responsive by design** — usable from a small phone screen up to desktop, including the admin panel.
+-  **One-command database seeding** — populate a fresh Supabase project with starter colors and a sample frame.
 
 ## 🛠️ Tech Stack
 
