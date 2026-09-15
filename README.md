@@ -52,7 +52,6 @@ This project was built to practice and demonstrate:
 |---|---|---|---|
 | ![Manage frame](<docs/screenshots/Screenshot 2026-09-15 015228.png>) | ![Add popup](<docs/screenshots/Screenshot 2026-09-15 015248.png>) | ![Manage colour](<docs/screenshots/Screenshot 2026-09-15 015237.png>) | ![Transactions](<docs/screenshots/Screenshot 2026-09-15 015303.png>) |
 
-> 📌 Just drop your 8 screenshot files (unrenamed, straight from your Screenshots folder) into `docs/screenshots/` — the filenames above already match. If any picture landed in the wrong slot, just swap its row/column in this table before pushing.
 
 ## 🚀 How to Build
 
